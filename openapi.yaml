@@ -1,0 +1,263 @@
+openapi: 3.0.3
+info:
+  title: "Мессенджер  ChelGuChats"
+  version: 0.0.1
+servers:
+  - url: http://localhost:8080/api/v1/
+    description: Dev server
+paths:
+  /register:
+    post:
+      summary: Регистрация нового пользователя
+      description: Регистрирует нового пользователя в системе.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: Имя пользователя
+                password:
+                  type: string
+                  description: Пароль
+      responses:
+        201:
+          description: Успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        409:
+          description: имя пользователя уже существует
+          
+  /auth:
+    post:
+      summary: Авторизация пользователя
+      description: Авторизует пользователя в системе.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: Имя пользователя
+                password:
+                  type: string
+                  description: Пароль
+      responses:
+        200:
+          description: Успешно авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+        401:
+          description: Не авторизован
+          
+  /users:
+    get:
+      summary: получить список пользователей
+      description: Возвращает список всех пользователей мессенджера
+      responses:
+        200:
+          description: успешно выполнен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Users'
+   
+  /chats/list:       
+    get:
+    
+      summary: Получить список чатов
+      description: Возвращает список всех чатов
+      responses:
+        200:
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Chat'
+     
+  /chats/create:             
+    post:
+    
+      summary: Создать новый чат
+      description: Создает новый чат с указанными участниками.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Название чата
+                participants:
+                  type: array
+                  description: Участники чата
+                  items:
+                    type: string
+                    description: Имя пользователя участника
+      responses:
+        201:
+          description: Успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chat'
+
+      
+  /chats/{chatId}:            
+    get:
+      summary: Получить конкретный чат
+      description: Возвращает информацию о конкретном чате.
+      parameters:
+        - in: path
+          name: chatId
+          required: true
+          description: Идентификатор чата
+          schema:
+            type: string
+      responses:
+        200:
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chat'
+        404:
+          description: Такого чата не существует
+   
+  /chats/{chatId}/send_message:             
+    post:
+    
+      summary: Отправить сообщение в чат
+      description: Отправляет сообщение в указанный чат.
+      parameters:
+        - in: path
+          name: chatId
+          required: true
+          description: Идентификатор чата
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: integer
+                  description: id пользователя
+                content:
+                  type: string
+                  description: Содержимое сообщения
+      responses:
+        201:
+          description: Успешно отправлено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+   
+  /chats/{chatId}/get_messages:             
+    get:
+    
+      summary: Получить список сообщений в чате
+      description: Возвращает список всех сообщений в указанном чате.
+      parameters:
+        - in: path
+          name: chatId
+          required: true
+          description: Идентификатор чата
+          schema:
+            type: string
+      responses:
+        200:
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+
+          
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Идентификатор пользователя
+        username:
+          type: string
+          description: Имя пользователя
+    Users:
+      type: array
+      items:
+        type: object
+        properties: 
+          id:
+            type: integer
+            description: id Пользователя
+          username:
+            type: string
+            description: Имя пользователя
+      properties:
+        id:
+          type: integer
+          description: Идентификатор пользователя
+        username:
+          type: string
+          description: Имя пользователя
+    AuthToken:
+      type: object
+      properties:
+        token:
+          type: string
+          description: Токен авторизации
+    Chat:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Идентификатор чата
+        name:
+          type: string
+          description: Название чата
+        participants:
+          type: array
+          description: Участники чата
+          items:
+            type: string
+            description: Имя пользователя участника
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Идентификатор сообщения
+        content:
+          type: string
+          description: Содержимое сообщения
+        sender:
+          type: string
+          description: Отправитель сообщения
+        timestamp:
+          type: string
+          description: Временная метка сообщения
+        
+          
